@@ -36,11 +36,14 @@ public class Memorama extends Stage implements EventHandler {
 
     private Button[][] arTarjetas;        //se puede realizar arreglo de botones
     private String[][] arAsignacion;
-    private ArrayList<String> nombTarjetas = new ArrayList<>();;
-    private ArrayList<Integer> coordTarjetas = new ArrayList<>();;
+    private ArrayList<String> nombTarjetas = new ArrayList<>();
+    ;
+    private ArrayList<Integer> coordTarjetas = new ArrayList<>();
+    ;
 
     private Scene escena;
     private int noPares;
+    private int dimensionGdp[] = new int[2];
     int contador = 0;
     int numIntentos = 5;
     int validaTerminar = 0;
@@ -77,57 +80,79 @@ public class Memorama extends Stage implements EventHandler {
         vBox = new VBox();
         vBox.getChildren().addAll(hBox, lblIntentos, gdpMesa);
 
-        escena = new Scene(vBox, 750, 300);
+        escena = new Scene(vBox, 600, 500);
 
     }
 
     @Override
-    public void handle(Event event){
+    public void handle(Event event) {
         numIntentos = 5;
-
         noPares = Integer.parseInt(txtNoTarjetas.getText());
-        if(noPares < 8 )
-        {
-        vBox.getChildren().remove(gdpMesa);
-        obtenerTamanio();
-        gdpMesa = new GridPane();
-        arAsignacion = new String[2][noPares]; //arreglo del gdp
-        revolver();
-        arTarjetas = new Button[2][noPares];
+        if (noPares < 8 && noPares> 1) {
+            vBox.getChildren().remove(gdpMesa);
+            dimensionGdp = obtenerTamanio(noPares);
 
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < noPares; j++) {
-                lblIntentos.setText("Numero de intentos: " + (numIntentos));
-                Image img = new Image("sample/assets/question.jpg");
-                ImageView imv = new ImageView(img);
-                imv.setFitHeight(100);
-                imv.setPreserveRatio(true);
-                arTarjetas[i][j] = new Button();
-                int finalI = i;
-                int finalJ = j;
-                arTarjetas[i][j].setGraphic(imv);
-                arTarjetas[i][j].setPrefSize(80, 100);
+            gdpMesa = new GridPane();
+            arAsignacion = new String[dimensionGdp[0]][dimensionGdp[1]]; //arreglo del gdp
+            revolver();
+            arTarjetas = new Button[dimensionGdp[0]][dimensionGdp[1]];
 
-                arTarjetas[i][j].setOnAction(event1 -> verTarjeta(finalI, finalJ));
-                gdpMesa.add(arTarjetas[i][j], j, i);
+            for (int i = 0; i < dimensionGdp[0]; i++) {
+                for (int j = 0; j < dimensionGdp[1]; j++) {
+                    lblIntentos.setText("Numero de intentos: " + (numIntentos));
+                    Image img = new Image("sample/assets/question.jpg");
+                    ImageView imv = new ImageView(img);
+                    imv.setFitHeight(100);
+                    imv.setPreserveRatio(true);
+                    arTarjetas[i][j] = new Button();
+                    int finalI = i;
+                    int finalJ = j;
+                    arTarjetas[i][j].setGraphic(imv);
+                    arTarjetas[i][j].setPrefSize(80, 100);
 
+                    arTarjetas[i][j].setOnAction(event1 -> verTarjeta(finalI, finalJ));
+                    gdpMesa.add(arTarjetas[i][j], j, i);
+
+                }
             }
-        }
-        vBox.getChildren().add(gdpMesa);
-        }
-        else{
+            vBox.getChildren().add(gdpMesa);
+        } else {
             System.out.println("INGRESAR NUMERO DE 1 AL 7");
         }
     }
 
-    private void obtenerTamanio() {
+    private int[] obtenerTamanio(Integer numeroPares) {
+        int tamanio[] = new int[2];
+
+        if (numeroPares == 2) {
+            tamanio[0] = 2;
+            tamanio[1] = 2;
+        } else if (numeroPares == 3) {
+            tamanio[0] = 3;
+            tamanio[1] = 2;
+
+        } else if (numeroPares == 4) {
+            tamanio[0] = 2;
+            tamanio[1] = 4;
+        } else if (numeroPares == 5) {
+            tamanio[0] = 2;
+            tamanio[1] = 5;
+        } else if (numeroPares == 6) {
+            tamanio[0] = 4;
+            tamanio[1] = 3;
+        } else if (numeroPares == 7) {
+            tamanio[0] = 2;
+            tamanio[1] = 7;
+        }
+
+        return tamanio;
 
     }
 
     private void verTarjeta(int finalI, int finalJ) {
         Boolean bandera = null;
 
-        if(contador < 2) {
+        if (contador < 2) {
             Image img = new Image("sample/assets/" + arAsignacion[finalI][finalJ]);
             ImageView imv = new ImageView(img);
             imv.setFitHeight(100);
@@ -138,12 +163,11 @@ public class Memorama extends Stage implements EventHandler {
             coordTarjetas.add(finalI);
             coordTarjetas.add(finalJ);
             nombTarjetas.add(arAsignacion[finalI][finalJ]);
-            contador ++;
-        }
-        else{
+            contador++;
+        } else {
             bandera = revisarTarjetas(nombTarjetas);
             nombTarjetas.clear();
-            if (bandera == false){
+            if (bandera == false) {
                 Image ima = new Image("sample/assets/question.jpg");
                 ImageView im = new ImageView(ima);
                 im.setFitHeight(100);
@@ -161,14 +185,13 @@ public class Memorama extends Stage implements EventHandler {
                 numIntentos = numIntentos - 1;
                 lblIntentos.setText("Numero de intentos: " + (numIntentos));
                 coordTarjetas.removeAll(coordTarjetas);
-                if(numIntentos == 0){
+                if (numIntentos == 0) {
                     System.out.println("Mala suerte");
                     Memorama.this.close();
                     new Memorama();
                 }
-            }
-            else{
-              //  System.out.println("SIGA");
+            } else {
+                //  System.out.println("SIGA");
             }
             contador = 0;
         }
@@ -180,13 +203,12 @@ public class Memorama extends Stage implements EventHandler {
             coordTarjetas.removeAll(coordTarjetas);
             System.out.println("Son las mismas tarjetas!");
             validaTerminar = validaTerminar + 1;
-            if(validaTerminar == Integer.parseInt(txtNoTarjetas.getText())){
+            if (validaTerminar == Integer.parseInt(txtNoTarjetas.getText())) {
                 System.out.println("¡Felicidades ha terminado!");
                 this.close();
             }
             flag = true;
-        }
-        else{
+        } else {
             flag = false;
 
         }
@@ -195,8 +217,8 @@ public class Memorama extends Stage implements EventHandler {
 
     private void revolver() { //asignar nombre de imagen a cada objeto del gdp
 
-        for (int i = 0; i < 2; i++)
-            for (int j = 0; j < noPares; j++) {
+        for (int i = 0; i < dimensionGdp[0]; i++)
+            for (int j = 0; j < dimensionGdp[1]; j++) {
                 arAsignacion[i][j] = new String(); //le da un valor "String" a cada espacio del gdp? para incializar
             }
 
@@ -204,9 +226,9 @@ public class Memorama extends Stage implements EventHandler {
         List<String> stringList = Arrays.asList(arImagenes);
         Collections.shuffle(stringList);
 
-        for (int i = 0; i < noPares; ) {
-            posx = (int) (Math.random() * 2);
-            posy = (int) (Math.random() * noPares);
+        for (int i = 0; i < dimensionGdp[1]; ) {
+            posx = (int) (Math.random() * dimensionGdp[0]);
+            posy = (int) (Math.random() * dimensionGdp[1]);
             if (arAsignacion[posx][posy].equals("")) {
                 arAsignacion[posx][posy] = stringList.get(i);
                 cont++;
