@@ -1,0 +1,20 @@
+.root{
+        -fx-background-image: url("/sample/assets/css/fondoAbs2.jpg");
+        -fx-background-repeat: no-repeat;
+        -fx-background-size: cover, 250 300;
+        -fx-background-position: center;
+}
+
+.label{
+    -fx-text-fill: white;
+    -fx-font-size: 14 pt;
+    -fx-font-family: "Segoe UI Semibold";
+}
+
+.button{
+    -fx-text-fill: WHITE;
+    -fx-alignment: center;
+    -fx-background-color: purple;
+    -fx-border-color:  #f5f5dc;
+     -fx-border-width: 3;
+}

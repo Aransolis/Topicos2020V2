@@ -1,0 +1,24 @@
+.root{
+        -fx-background-image: url("/sample/assets/fondoAbs.jpg") ,url("/sample/assets/logoitc.png");
+        -fx-background-repeat: no-repeat;
+        -fx-background-size: cover, 250 300;
+        -fx-background-position: center;
+}
+
+.menu-bar{
+        -fx-background-color: #ff4500;
+        -fx-border-color: #1e90ff;
+        -fx-border-width: 3;
+}
+
+.menu-bar . label{
+    -fx-text-fill: white;
+}
+
+.menu:hover{
+    -fx-background-color: #daa520;
+}
+
+.menu-item .label{
+    -fx-text-fill: black;
+}

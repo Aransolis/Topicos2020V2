@@ -40,7 +40,6 @@ public class Main extends Application implements EventHandler {
         primaryStage.addEventHandler(WindowEvent.WINDOW_HIDDEN, this);
         primaryStage.show();
 
-
     }
 
     private void crearUI() {
@@ -87,6 +86,7 @@ public class Main extends Application implements EventHandler {
         vPrincipal.getChildren().addAll(mnbPrincipal,tlbMenu);
 
         escena = new Scene(vPrincipal);
+        escena.getStylesheets().add("sample/assets/css/main_styles.css");
     }
 
     private void opcionMenu(int opc) {
