@@ -15,7 +15,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,13 +45,14 @@ public class Memorama extends Stage implements EventHandler {
     int contador = 0;
     int numIntentos = 5;
     int validaTerminar = 0;
-    int numeroMayor = 0;
+
 
 
     public Memorama() {
         CrearUI();
         this.setTitle("Memorama : ");
         this.setScene(escena);
+      //  this.setHeight(200);
         this.show();
     }
 
@@ -62,6 +62,7 @@ public class Memorama extends Stage implements EventHandler {
         btnAceptar = new Button("Voltear y revolver");
         lblIntentos = new Label("Numero de intentos: " + numIntentos); //lbl para mostrar numero de intentos disponibles
         btnAceptar.addEventHandler(MouseEvent.MOUSE_CLICKED, this);
+
         //----Para mandar diferentes mensajes opcion 2 en una clase diferente mandando un argumento int----
 
       /*btnAceptar.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventosMemorama()); // el evento es llamado de otro paquete/clase
@@ -95,7 +96,6 @@ public class Memorama extends Stage implements EventHandler {
         noPares = Integer.parseInt(txtNoTarjetas.getText());
 
         if (noPares < 8 && noPares > 1) {            //condicion para que solo acepte # 1-7
-
             vBox.getChildren().remove(gdpMesa);
 
             dimensionGdp = obtenerTamanio(noPares);  // mando llamar metodo para definir tamaño gdp
@@ -131,6 +131,8 @@ public class Memorama extends Stage implements EventHandler {
             alert.setHeaderText("Cantidad Erronea!");
             alert.setContentText("Ingrese un numero de 2 a 7");
             alert.showAndWait();
+            btnAceptar.setDisable(false);
+            txtNoTarjetas.setDisable(false);
         }
     }
 
@@ -140,6 +142,7 @@ public class Memorama extends Stage implements EventHandler {
         if (numeroPares == 2) {
             tamanio[0] = 2;
             tamanio[1] = 2;
+
         } else if (numeroPares == 3) {
             tamanio[0] = 3;
             tamanio[1] = 2;
@@ -218,7 +221,7 @@ public class Memorama extends Stage implements EventHandler {
         Boolean flag = null;
         if (comparar.get(0).contentEquals(comparar.get(1))) {
             coordTarjetas.removeAll(coordTarjetas);
-            System.out.println("Son las mismas tarjetas!");
+            //System.out.println("Son las mismas tarjetas!");
             validaTerminar = validaTerminar + 1; //ayuda a terminar programa
             if (validaTerminar == Integer.parseInt(txtNoTarjetas.getText())) {
                 Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -246,12 +249,6 @@ public class Memorama extends Stage implements EventHandler {
         int posx, posy, cont = 0;
         List<String> stringList = Arrays.asList(arImagenes);
         Collections.shuffle(stringList);
-
-        if (dimensionGdp[0] >= dimensionGdp[1]) {
-            numeroMayor = dimensionGdp[0];
-        } else {
-            numeroMayor = dimensionGdp[1];
-        }
 
         for (int i = 0; i < noPares; ) {
             posx = (int) (Math.random() * dimensionGdp[0]);
