@@ -1,0 +1,10 @@
+#lbl1, #lbl2{
+    -fx-text-fill: #191970;
+    -fx-font-size: 14 pt;
+    -fx-font-family: "Segoe UI Semibold";
+}
+#lbl3{
+         -fx-text-fill: #2e8b57;
+         -fx-font-size: 14 pt;
+         -fx-font-family: "Segoe UI Semibold";
+     }

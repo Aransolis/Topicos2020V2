@@ -3,6 +3,7 @@ package sample.events;
 import javafx.event.EventHandler;
 import javafx.scene.input.KeyEvent;
 import sample.ui.Taquimecanografo;
+
 public class EventosTaqui implements EventHandler<KeyEvent> {
     @Override
     public void handle(KeyEvent event) {

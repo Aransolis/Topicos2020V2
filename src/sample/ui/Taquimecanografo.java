@@ -1,15 +1,15 @@
 package sample.ui;
 
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Button;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -17,23 +17,29 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import sample.events.EventosTaqui;
 
+import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
     //VARIABLES
     private String archivo = "";
-
-    // Bandera para detectar cambios de color en las teclas
-    boolean banColor = false;
+    private Label lblContaErrores;
+    private Label lblNumeroPalabras;
+    public static Label lblSegundos;
+    Integer contador = 0;
+    String texto;
 
     //Arreglo para etiquetar el teclado
     private String arLblBtn1[] = {"ESC", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "SUPR"};
     private String arLblBtn2[] = {"|", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "?", "¿", "BACKSPACE"};
     private String arLblBtn3[] = {"TAB", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "´´", "+", "}"};
-    private String arLblBtn4[] = {"BLOQ MAYUS", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ", "{" , "ENTER"};
+    private String arLblBtn4[] = {"BLOQ MAYUS", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Ñ", "{", "ENTER"};
     private String arLblBtn5[] = {"SHIFT", "Z", "X", "C", "V", "B", "N", "M", ",", ".", "-"}; //11
     private String arLblBtn6[] = {"CTRL", "ALT", "                     ESPACIO                      ", "<>"};
 
@@ -47,6 +53,7 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
 
     //Elementos para el teclado
     private HBox[] arHBoxTeclas = new HBox[6];
+    private HBox hBoxContador;
     private VBox vBoxTeclado;
     public static Button[] arBtnTeclado1 = new Button[14];
     public static Button[] arBtnTeclado2 = new Button[14];
@@ -72,13 +79,29 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
         CrearToolbar();
         CrearEscritura();
         CrearTeclado();
+        crearhBoxIntermedio();
+
 
         vBoxPrincipal = new VBox();
-        vBoxPrincipal.getChildren().addAll(tlbMenu, txtContenido, txtEscritura, vBoxTeclado);
+        vBoxPrincipal.getChildren().addAll(tlbMenu, txtContenido, hBoxContador, txtEscritura, vBoxTeclado);
         vBoxPrincipal.setSpacing(10);
         vBoxPrincipal.setPadding(new Insets(10));
         escena = new Scene(vBoxPrincipal, 800, 700);
 
+        escena.getStylesheets().add("sample/assets/css/Taquimecanografo_styles.css");
+    }
+
+    private void crearhBoxIntermedio() {
+        lblContaErrores = new Label("Numero De Errores: " + contador);
+        lblNumeroPalabras = new Label("Numero De Palabras: 0" );
+        lblSegundos = new Label("Tiempo Transcurrido:  ");
+        lblContaErrores.setId("lbl1");
+        lblNumeroPalabras.setId("lbl2");
+        lblSegundos.setId("lbl3");
+        hBoxContador = new HBox();
+        hBoxContador.setSpacing(120);
+        hBoxContador.setAlignment(Pos.CENTER);
+        hBoxContador.getChildren().addAll(lblContaErrores, lblSegundos, lblNumeroPalabras);
     }
 
     private void CrearTeclado() {
@@ -144,19 +167,36 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
 
         }
 
-        vBoxTeclado.getChildren().addAll(arHBoxTeclas[0], arHBoxTeclas[1], arHBoxTeclas[2],arHBoxTeclas[3], arHBoxTeclas[4], arHBoxTeclas[5]);
+        vBoxTeclado.getChildren().addAll(arHBoxTeclas[0], arHBoxTeclas[1], arHBoxTeclas[2], arHBoxTeclas[3], arHBoxTeclas[4], arHBoxTeclas[5]);
         vBoxTeclado.setAlignment(Pos.CENTER);
     }
 
     private void CrearEscritura() {
+        texto = "";
         txtContenido = new TextArea();
         txtContenido.setEditable(false);
         txtContenido.setPrefRowCount(11);
         txtEscritura = new TextArea();
         txtEscritura.setPrefRowCount(9);
         txtEscritura.setOnKeyPressed(this);
+        txtEscritura.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+            }
+        });
         txtEscritura.addEventHandler(KeyEvent.KEY_RELEASED, new EventosTaqui());
 
+
+    }
+
+    private void verificarFinal() {
+        if(txtEscritura.getText().equals(txtContenido.getText())){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Dialogo Informativo");
+            alert.setHeaderText("Ha Finalizado La Escritura Del Texto");
+            alert.setContentText("Con Un Total De " + contador + " Errores");
+                    alert.showAndWait();
+        }
     }
 
     private void CrearToolbar() {
@@ -184,7 +224,7 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
                 fileChooser.setTitle("Abrir archivo... ");
                 File file = fileChooser.showOpenDialog(this);
                 archivo = file.getAbsoluteFile().toString();
-                if(archivo != null){
+                if (archivo != null) {
                     fileToTextfield(archivo);
                 }
                 break;
@@ -196,36 +236,35 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
         BufferedReader br = null;
 
         try {
-            fr = new FileReader (ruta);
+            fr = new FileReader(ruta);
             br = new BufferedReader(fr);
 
             // Lectura del fichero
             String linea;
-            while((linea=br.readLine())!=null)
-                if(txtContenido.getText().equals("")){
+            while ((linea = br.readLine()) != null)
+                if (txtContenido.getText().equals("")) {
                     txtContenido.setText(linea);
                     System.out.println("holaa");
-                }
-            else {
+                } else {
                     txtContenido.setText(txtContenido.getText() + "\n" + linea);
                 }
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
-        }finally{
-            try{
-                if( null != fr ){
+        } finally {
+            try {
+                if (null != fr) {
                     fr.close();
                 }
-            }catch (Exception e2){
+            } catch (Exception e2) {
                 e2.printStackTrace();
             }
         }
     }
 
+
     @Override
     public void handle(KeyEvent event) {
-        System.out.println(event.getCode().toString());
+
         switch (event.getCode().toString()) {
             case "DELETE":
                 arBtnTeclado1[13].setStyle("-fx-background-color:  #4169e1;");
@@ -234,127 +273,134 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
                 arBtnTeclado1[0].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "BACK_SPACE":
-                    arBtnTeclado2[13].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[13].setStyle("-fx-background-color:  #4169e1;");
+                contador++;
+                lblContaErrores.setText("Numero De Errores: " + contador);
+                texto = txtEscritura.getText();
+                StringTokenizer st = new StringTokenizer(texto);
+                lblNumeroPalabras.setText("Numero De Palabras: " + st.countTokens());
+
                 break;
             case "DIGIT1":
-                    arBtnTeclado2[1].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[1].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT2":
-                    arBtnTeclado2[2].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[2].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT3":
-                    arBtnTeclado2[3].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[3].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT4":
-                    arBtnTeclado2[4].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[4].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT5":
-                    arBtnTeclado2[5].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[5].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT6":
-                    arBtnTeclado2[6].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[6].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT7":
-                    arBtnTeclado2[7].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[7].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT8":
-                    arBtnTeclado2[8].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[8].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT9":
-                    arBtnTeclado2[9].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[9].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DIGIT0":
-                    arBtnTeclado2[10].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[10].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "QUOTE":
-                    arBtnTeclado2[11].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[11].setStyle("-fx-background-color:  #4169e1;");
                 break;
 
             case "UNDEFINED":
-                    arBtnTeclado2[12].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado2[12].setStyle("-fx-background-color:  #4169e1;");
                 break;
-                //
+            //
             case "TAB":
-                    arBtnTeclado3[0].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[0].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "Q":
-                    arBtnTeclado3[1].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[1].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "W":
-                    arBtnTeclado3[2].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[2].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "E":
-                    arBtnTeclado3[3].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[3].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "R":
-                    arBtnTeclado3[4].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[4].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "T":
-                    arBtnTeclado3[5].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[5].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "Y":
-                    arBtnTeclado3[6].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[6].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "U":
-                    arBtnTeclado3[7].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[7].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "I":
-                    arBtnTeclado3[8].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[8].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "O":
-                    arBtnTeclado3[9].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[9].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "P":
-                    arBtnTeclado3[10].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[10].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "DEAD_ACUTE":
-                    arBtnTeclado3[11].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[11].setStyle("-fx-background-color:  #4169e1;");
                 break;
 
             case "PLUS":
-                    arBtnTeclado3[12].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[12].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "BRACERIGHT":
-                    arBtnTeclado3[13].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado3[13].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "CAPS":
-                    arBtnTeclado4[0].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[0].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "A":
-                    arBtnTeclado4[1].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[1].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "S":
-                    arBtnTeclado4[2].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[2].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "D":
-                    arBtnTeclado4[3].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[3].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "F":
-                    arBtnTeclado4[4].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[4].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "G":
-                    arBtnTeclado4[5].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[5].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "H":
-                    arBtnTeclado4[6].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[6].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "J":
-                    arBtnTeclado4[7].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[7].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "K":
-                    arBtnTeclado4[8].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[8].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "L":
-                    arBtnTeclado4[9].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[9].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "Ñ":
-                    arBtnTeclado4[10].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[10].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "BRACELEFT":
-                    arBtnTeclado4[11].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[11].setStyle("-fx-background-color:  #4169e1;");
                 break;
             case "ENTER":
-                    arBtnTeclado4[12].setStyle("-fx-background-color:  #4169e1;");
+                arBtnTeclado4[12].setStyle("-fx-background-color:  #4169e1;");
+                verificarFinal();
                 break;
             case "SHIFT":
                 arBtnTeclado5[0].setStyle("-fx-background-color:  #4169e1;");
@@ -397,6 +443,9 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
                 break;
             case "SPACE":
                 arBtnTeclado6[2].setStyle("-fx-background-color:  #4169e1;");
+                texto = txtEscritura.getText();
+                StringTokenizer ts = new StringTokenizer(texto);
+                lblNumeroPalabras.setText("Numero De Palabras: " + ts.countTokens());
                 break;
             case "LESS":
                 arBtnTeclado6[3].setStyle("-fx-background-color:  #4169e1;");
