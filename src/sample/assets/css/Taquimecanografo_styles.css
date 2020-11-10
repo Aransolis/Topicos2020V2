@@ -1,10 +1,26 @@
-#lbl1, #lbl2{
-    -fx-text-fill: #191970;
+.root{
+        -fx-background-color: #e6e6fa;
+
+}
+
+.button{
+    -fx-border-color:  BLACK;
+     -fx-border-width: 1;
+}
+
+#lbl1, #lbl2, #lbl4{
+    -fx-text-fill: #008080;
     -fx-font-size: 14 pt;
     -fx-font-family: "Segoe UI Semibold";
 }
-#lbl3{
-         -fx-text-fill: #2e8b57;
+#lbl3, #lbl5, #lbl6{
+         -fx-text-fill: RED;
          -fx-font-size: 14 pt;
          -fx-font-family: "Segoe UI Semibold";
+}
+
+#txt1, #txt2{
+         -fx-font-size: 14px;
+         -fx-font-family: Georgia, Serif;
+         -fx-text-fill: #00008b;
      }

@@ -1,7 +1,12 @@
 package sample.ui;
 
-import javafx.event.ActionEvent;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.event.EventHandler;
+import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -15,25 +20,30 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import sample.events.EventosTaqui;
+import javafx.scene.layout.Region;
 
-import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.net.URL;
+import java.util.ResourceBundle;
 import java.util.StringTokenizer;
-import java.util.Timer;
-import java.util.TimerTask;
 
 
-public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
+public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> , Initializable {
     //VARIABLES
     private String archivo = "";
     private Label lblContaErrores;
-    private Label lblNumeroPalabras;
-    public static Label lblSegundos;
+    private Label lblbErroes;
+    private Label lblNumeroPalabras, lblpalabras;
+    private Label lblSegundos, lblTiempo;
     Integer contador = 0;
     String texto;
+    private static final int STARTTIME = 0;
+    private Timeline timeline;
+    private final IntegerProperty timeSeconds = new SimpleIntegerProperty(STARTTIME);
 
     //Arreglo para etiquetar el teclado
     private String arLblBtn1[] = {"ESC", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "SUPR"};
@@ -47,6 +57,7 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
     //Elementos para el toolbar
     private ToolBar tlbMenu;
     private Button btnAbrir;
+
 
     //Elementos para la escritura
     private TextArea txtContenido, txtEscritura;
@@ -81,7 +92,8 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
         CrearTeclado();
         crearhBoxIntermedio();
 
-
+        txtContenido.setId("txt1");
+        txtEscritura.setId("txt2");
         vBoxPrincipal = new VBox();
         vBoxPrincipal.getChildren().addAll(tlbMenu, txtContenido, hBoxContador, txtEscritura, vBoxTeclado);
         vBoxPrincipal.setSpacing(10);
@@ -92,16 +104,27 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
     }
 
     private void crearhBoxIntermedio() {
-        lblContaErrores = new Label("Numero De Errores: " + contador);
-        lblNumeroPalabras = new Label("Numero De Palabras: 0" );
-        lblSegundos = new Label("Tiempo Transcurrido:  ");
+        lblContaErrores = new Label("Numero De Errores: ");
+        lblbErroes = new Label();
+        lblNumeroPalabras = new Label("Numero De Palabras: ");
+        lblpalabras = new Label();
+        lblTiempo = new Label("Tiempo: ");
+        lblSegundos = new Label();
+
         lblContaErrores.setId("lbl1");
         lblNumeroPalabras.setId("lbl2");
         lblSegundos.setId("lbl3");
+        lblTiempo.setId("lbl4");
+        lblbErroes.setId("lbl5");
+        lblpalabras.setId("lbl6");
+
         hBoxContador = new HBox();
-        hBoxContador.setSpacing(120);
-        hBoxContador.setAlignment(Pos.CENTER);
-        hBoxContador.getChildren().addAll(lblContaErrores, lblSegundos, lblNumeroPalabras);
+        Region region1 = new Region();
+        HBox.setHgrow(region1, Priority.ALWAYS);
+        Region region2 = new Region();
+        HBox.setHgrow(region2, Priority.ALWAYS);
+        hBoxContador.getChildren().addAll(lblContaErrores, lblbErroes, region1, lblTiempo, lblSegundos, region2, lblNumeroPalabras, lblpalabras);
+        hBoxContador.setPadding(new Insets(0,20,0,20));
     }
 
     private void CrearTeclado() {
@@ -177,11 +200,23 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
         txtContenido.setEditable(false);
         txtContenido.setPrefRowCount(11);
         txtEscritura = new TextArea();
+        txtEscritura.setVisible(false);
         txtEscritura.setPrefRowCount(9);
         txtEscritura.setOnKeyPressed(this);
         txtEscritura.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                if(lblSegundos.getText().equals("")) {
+                    btnAbrir.setDisable(true);
+                    timeline = new Timeline(new KeyFrame(Duration.seconds(1), evt -> actualizarTiempo()));
+                    timeline.setCycleCount(Animation.INDEFINITE); // repeat over and over again
+                    timeSeconds.set(STARTTIME);
+                    timeline.play();
+                    lblSegundos.textProperty().bind(timeSeconds.asString());
+                }
+                else {
+                   // System.out.println("hoaaa");
+                }
             }
         });
         txtEscritura.addEventHandler(KeyEvent.KEY_RELEASED, new EventosTaqui());
@@ -190,12 +225,19 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
     }
 
     private void verificarFinal() {
-        if(txtEscritura.getText().equals(txtContenido.getText())){
+        String txt1, txt2;
+        txt1 = txtEscritura.getText().replaceAll("\n", "");
+        txt2 = txtContenido.getText().replaceAll("\n", "");
+
+        if (txt1.contentEquals(txt2)) {
+            timeline.stop();
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Dialogo Informativo");
             alert.setHeaderText("Ha Finalizado La Escritura Del Texto");
-            alert.setContentText("Con Un Total De " + contador + " Errores");
-                    alert.showAndWait();
+            alert.setContentText("Cantidad Errores: " + contador + "\nDuracion De Tiempo: " + lblSegundos.getText() + " segundos \nCantidad De Palabras: " +
+                lblpalabras.getText());
+            alert.showAndWait();
+            this.close();
         }
     }
 
@@ -226,6 +268,7 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
                 archivo = file.getAbsoluteFile().toString();
                 if (archivo != null) {
                     fileToTextfield(archivo);
+                    txtEscritura.setVisible(true);
                 }
                 break;
         }
@@ -244,7 +287,6 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
             while ((linea = br.readLine()) != null)
                 if (txtContenido.getText().equals("")) {
                     txtContenido.setText(linea);
-                    System.out.println("holaa");
                 } else {
                     txtContenido.setText(txtContenido.getText() + "\n" + linea);
                 }
@@ -261,7 +303,16 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
         }
     }
 
+    private void actualizarTiempo() {
+        // incrementa segundos
+        int seconds = timeSeconds.get();
+        timeSeconds.set(seconds+1);
+    }
 
+    public void initialize(URL url, ResourceBundle rb) {
+
+       // lblSegundos.textProperty().bind(timeSeconds.asString());
+    }
     @Override
     public void handle(KeyEvent event) {
 
@@ -275,11 +326,11 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
             case "BACK_SPACE":
                 arBtnTeclado2[13].setStyle("-fx-background-color:  #4169e1;");
                 contador++;
-                lblContaErrores.setText("Numero De Errores: " + contador);
+                lblbErroes.setText(contador.toString());
+                lblContaErrores.setText("Numero De Errores: " );
                 texto = txtEscritura.getText();
                 StringTokenizer st = new StringTokenizer(texto);
-                lblNumeroPalabras.setText("Numero De Palabras: " + st.countTokens());
-
+                lblpalabras.setText(Integer.toString(st.countTokens()));
                 break;
             case "DIGIT1":
                 arBtnTeclado2[1].setStyle("-fx-background-color:  #4169e1;");
@@ -401,6 +452,10 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
             case "ENTER":
                 arBtnTeclado4[12].setStyle("-fx-background-color:  #4169e1;");
                 verificarFinal();
+                texto = txtEscritura.getText();
+                StringTokenizer tr = new StringTokenizer(texto);
+                lblpalabras.setText(Integer.toString(tr.countTokens()));
+
                 break;
             case "SHIFT":
                 arBtnTeclado5[0].setStyle("-fx-background-color:  #4169e1;");
@@ -445,7 +500,7 @@ public class Taquimecanografo extends Stage implements EventHandler<KeyEvent> {
                 arBtnTeclado6[2].setStyle("-fx-background-color:  #4169e1;");
                 texto = txtEscritura.getText();
                 StringTokenizer ts = new StringTokenizer(texto);
-                lblNumeroPalabras.setText("Numero De Palabras: " + ts.countTokens());
+                lblpalabras.setText(Integer.toString(ts.countTokens()));
                 break;
             case "LESS":
                 arBtnTeclado6[3].setStyle("-fx-background-color:  #4169e1;");
