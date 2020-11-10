@@ -14,7 +14,7 @@ public class Conexion {
     public static void crearConexion(){
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection("jdbc:mysql://"+server+":3306/"+db,user,pwd);
+            con = DriverManager.getConnection("jdbc:mysql://"+server+":3306/"+db+ "?useTimezone=true&serverTimezone=UTC",user,pwd);
         }catch (Exception e){e.printStackTrace();}
     }
 }
