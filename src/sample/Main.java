@@ -1,6 +1,4 @@
 package sample;
-
-
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -23,14 +21,12 @@ import sample.ui.Taquimecanografo;
 
 public class Main extends Application implements EventHandler {
     private VBox vPrincipal;
-
     private MenuBar mnbPrincipal;
     private Menu menCompetencia1, menCompetencia2, menSalir;
     private MenuItem itmMemorama, itmPractica2, itmRestaurante, itmTerminar;
     private ToolBar tlbMenu;
     private Scene escena;
     private Button btnToolbar1;
-
 
     @Override
     public void start(Stage primaryStage) throws Exception {

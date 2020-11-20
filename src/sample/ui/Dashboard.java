@@ -13,6 +13,7 @@ public class Dashboard extends Stage {
         this.setTitle("Panel de administracion del Restaurante El Antojito:)");
         this.show();
         new PlatilloCRUD();
+        new TipoPlatilloCRUD();
     }
 
     private void CrearUI() {

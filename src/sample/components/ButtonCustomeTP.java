@@ -4,21 +4,21 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.TableCell;
-import sample.models.PlatillosDAO;
-import sample.ui.FrmPlatillos;
+import sample.models.TipoPlatilloDAO;
+import sample.ui.FrmTipoPlatillo;
 
 import java.util.Optional;
 
-public class ButtonCustome extends TableCell<PlatillosDAO, String>{
-    private PlatillosDAO objPlatillo;
+public class ButtonCustomeTP extends TableCell<TipoPlatilloDAO, String> {
+    private TipoPlatilloDAO objTPDAO;
     private Button btnCelda;
 
-    public ButtonCustome(int opc) {
+    public ButtonCustomeTP(int opc) {
         if (opc == 1) {
             btnCelda = new Button("Editar");
             btnCelda.setOnAction(event -> {
-                objPlatillo = ButtonCustome.this.getTableView().getItems().get(ButtonCustome.this.getIndex());
-                new FrmPlatillos(ButtonCustome.this.getTableView(),objPlatillo);
+                objTPDAO = ButtonCustomeTP.this.getTableView().getItems().get(ButtonCustomeTP.this.getIndex());
+                new FrmTipoPlatillo(ButtonCustomeTP.this.getTableView(), objTPDAO);
             });
         } else {
             btnCelda = new Button("Borrar");
@@ -31,12 +31,12 @@ public class ButtonCustome extends TableCell<PlatillosDAO, String>{
                 Optional<ButtonType> result = alerta.showAndWait();
                 if (result.get() == ButtonType.OK) {
                     //Obtenemos el objeto de tipo Platillos  de acuerdo al renglon seleccionado
-                    objPlatillo = ButtonCustome.this.getTableView().getItems().get(ButtonCustome.this.getIndex());
-                    objPlatillo.delPlatillo();
+                    objTPDAO = ButtonCustomeTP.this.getTableView().getItems().get(ButtonCustomeTP.this.getIndex());
+                    objTPDAO.delTipo();
 
                     //Actualizamos eñ TableView
-                    ButtonCustome.this.getTableView().setItems(objPlatillo.getAllPlatillo());
-                    ButtonCustome.this.getTableView().refresh();
+                    ButtonCustomeTP.this.getTableView().setItems(objTPDAO.getAllTipo());
+                    ButtonCustomeTP.this.getTableView().refresh();
                 }
             });
         }
@@ -49,3 +49,4 @@ public class ButtonCustome extends TableCell<PlatillosDAO, String>{
             setGraphic(btnCelda);
     }
 }
+
