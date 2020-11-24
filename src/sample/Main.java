@@ -13,6 +13,7 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import sample.components.Hilo;
 import sample.models.Conexion;
 import sample.ui.Memorama;
 import sample.ui.Dashboard;
@@ -37,7 +38,11 @@ public class Main extends Application implements EventHandler {
         primaryStage.addEventHandler(WindowEvent.WINDOW_HIDDEN, this);
         primaryStage.show();
         Conexion.crearConexion();
-
+        new Hilo("Sonic").start();
+        new Hilo("Flash").start();
+        new Hilo("Superman").start();
+        new Hilo("Meteoro").start();
+        new Hilo("QuickSilver").start();
     }
 
     private void crearUI() {
